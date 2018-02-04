@@ -3,8 +3,7 @@ package maintenance
 import (
 	"context"
 	"net/http"
-
-	"github.com/tomasen/realip"
+	"strings"
 )
 
 type Maintenance interface {
@@ -46,7 +45,8 @@ func (ms *maintenance) AllowByIP(next http.Handler) http.Handler {
 			return
 		}
 
-		ip := realip.FromRequest(r)
+		ip := strings.Split(r.RemoteAddr, ":")[0]
+
 		for _, allowedIP := range ips {
 			if ip == allowedIP {
 				mode.Disable()
