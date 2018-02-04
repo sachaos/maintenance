@@ -1,0 +1,8 @@
+#!/bin/bash -x
+
+HOST_IP=127.0.0.1
+MEMCACHED_PORT=11212
+
+export MEMCACHED_SERVER=$HOST_IP:$MEMCACHED_PORT
+
+go test -v
