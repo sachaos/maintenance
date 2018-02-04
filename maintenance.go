@@ -107,7 +107,7 @@ func (ms *maintenance) getAllowedIPs() ([]string, error) {
 		return ips, nil
 	}
 
-	if err := json.Unmarshal(m.Value, ips); err != nil {
+	if err := json.Unmarshal(m.Value, &ips); err != nil {
 		return ips, err
 	}
 	return ips, nil
