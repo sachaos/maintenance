@@ -20,6 +20,17 @@ go get github.com/sachaos/maintenance
 ## Sample
 
 ```go
+package main
+
+import (
+	"fmt"
+	"net/http"
+	"os"
+
+	"github.com/go-chi/chi"
+	"github.com/sachaos/maintenance"
+)
+
 func main() {
 	// Create maintenance instance with backend memcached url
 	memcachedUrl := os.Getenv("MEMCACHED_SERVER")
@@ -34,7 +45,7 @@ func main() {
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Request Succeeded")
 	})
-    
-    http.ListenAndServe(":3000", r)
+
+	http.ListenAndServe(":3000", r)
 }
 ```
