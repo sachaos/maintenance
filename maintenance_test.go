@@ -8,12 +8,12 @@ import (
 
 	"fmt"
 
-	"github.com/bradfitz/gomemcache/memcache"
 	"github.com/go-chi/chi"
 )
 
 func TestMaintenance(t *testing.T) {
 	m := NewMaintenance(os.Getenv("MEMCACHED_SERVER"))
+	mc := NewClient(os.Getenv("MEMCACHED_SERVER"))
 
 	middlewares := chi.Chain(m.SetMaintenance, m.ResponseIfMaintenanceMode)
 
@@ -25,9 +25,7 @@ func TestMaintenance(t *testing.T) {
 	client := ts.Client()
 
 	t.Run("When maintenance mode was enabled", func(t *testing.T) {
-		message := []byte("Service Unavailable")
-		mc := memcache.New(os.Getenv("MEMCACHED_SERVER"))
-		if err := mc.Set(&memcache.Item{Key: MaintenanceKey, Value: message}); err != nil {
+		if err := mc.SetMessage([]byte("Service Unavailable")); err != nil {
 			t.Error(err.Error())
 		}
 		defer mc.DeleteAll()
@@ -56,9 +54,9 @@ func TestMaintenance(t *testing.T) {
 
 func TestAllowByIPFeature(t *testing.T) {
 	m := NewMaintenance(os.Getenv("MEMCACHED_SERVER"))
-	message := []byte("Service Unavailable")
-	mc := memcache.New(os.Getenv("MEMCACHED_SERVER"))
-	if err := mc.Set(&memcache.Item{Key: MaintenanceKey, Value: message}); err != nil {
+
+	mc := NewClient(os.Getenv("MEMCACHED_SERVER"))
+	if err := mc.SetMessage([]byte("Service Unavailable")); err != nil {
 		t.Error(err.Error())
 	}
 	defer mc.DeleteAll()
@@ -84,8 +82,10 @@ func TestAllowByIPFeature(t *testing.T) {
 	})
 
 	t.Run("When requested by IP specified in white list", func(t *testing.T) {
-		allowedIPs := []byte("[\"127.0.0.1\"]")
-		if err := mc.Set(&memcache.Item{Key: AllowedIPsKey, Value: allowedIPs}); err != nil {
+		allowedIPs := []string{
+			"127.0.0.1",
+		}
+		if err := mc.SetAllowedIPs(allowedIPs); err != nil {
 			t.Error(err.Error())
 		}
 		defer mc.Delete(AllowedIPsKey)
@@ -101,8 +101,10 @@ func TestAllowByIPFeature(t *testing.T) {
 	})
 
 	t.Run("When requested by IP not specified in white list", func(t *testing.T) {
-		allowedIPs := []byte("[\"127.0.0.2\"]")
-		if err := mc.Set(&memcache.Item{Key: AllowedIPsKey, Value: allowedIPs}); err != nil {
+		allowedIPs := []string{
+			"127.0.0.2",
+		}
+		if err := mc.SetAllowedIPs(allowedIPs); err != nil {
 			t.Error(err.Error())
 		}
 		defer mc.Delete(AllowedIPsKey)
