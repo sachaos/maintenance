@@ -55,3 +55,23 @@ func (c *Client) getAllowedIPs() ([]string, error) {
 	}
 	return ips, nil
 }
+
+func (c *Client) SetMessage(msg []byte) error {
+	return c.mc.Set(&memcache.Item{Key: MaintenanceKey, Value: msg})
+}
+
+func (c *Client) SetAllowedIPs(ips []string) error {
+	allowedIPs, err := json.Marshal(ips)
+	if err != nil {
+		return err
+	}
+	return c.mc.Set(&memcache.Item{Key: AllowedIPsKey, Value: allowedIPs})
+}
+
+func (c *Client) DeleteAll() error {
+	return c.mc.DeleteAll()
+}
+
+func (c *Client) Delete(key string) error {
+	return c.mc.Delete(key)
+}
