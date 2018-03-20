@@ -44,7 +44,7 @@ func (c *MemcachedClient) GetAllowedIPs() ([]string, error) {
 	var ips []string
 	m, err := c.mc.Get(AllowedIPsKey)
 	if err != nil {
-		return ips, err
+		return ips, nil
 	}
 
 	if err := json.Unmarshal(m.Value, &ips); err != nil {
