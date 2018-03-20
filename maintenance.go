@@ -4,6 +4,8 @@ import (
 	"context"
 	"net/http"
 	"strings"
+
+	"github.com/go-redis/redis"
 )
 
 type Maintenance interface {
@@ -16,7 +18,13 @@ type maintenance struct {
 	client Client
 }
 
-func NewMaintenance(url string) Maintenance {
+func NewMaintenanceRedisBackend(opt *redis.Options) Maintenance {
+	client := NewRedisClient(opt)
+	return &maintenance{
+		client: client,
+	}
+}
+func NewMaintenanceMemcachedBackend(url string) Maintenance {
 	client := NewMemcachedClient(url)
 	return &maintenance{
 		client: client,

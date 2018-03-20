@@ -12,7 +12,7 @@ import (
 )
 
 func TestMaintenance(t *testing.T) {
-	m := NewMaintenance(os.Getenv("MEMCACHED_SERVER"))
+	m := NewMaintenanceMemcachedBackend(os.Getenv("MEMCACHED_SERVER"))
 	mc := NewMemcachedClient(os.Getenv("MEMCACHED_SERVER"))
 
 	middlewares := chi.Chain(m.SetMaintenance, m.ResponseIfMaintenanceMode)
@@ -53,7 +53,7 @@ func TestMaintenance(t *testing.T) {
 }
 
 func TestAllowByIPFeature(t *testing.T) {
-	m := NewMaintenance(os.Getenv("MEMCACHED_SERVER"))
+	m := NewMaintenanceMemcachedBackend(os.Getenv("MEMCACHED_SERVER"))
 
 	mc := NewMemcachedClient(os.Getenv("MEMCACHED_SERVER"))
 	if err := mc.SetMessage([]byte("Service Unavailable")); err != nil {
