@@ -13,7 +13,7 @@ import (
 
 func TestMaintenance(t *testing.T) {
 	m := NewMaintenance(os.Getenv("MEMCACHED_SERVER"))
-	mc := NewClient(os.Getenv("MEMCACHED_SERVER"))
+	mc := NewMemcachedClient(os.Getenv("MEMCACHED_SERVER"))
 
 	middlewares := chi.Chain(m.SetMaintenance, m.ResponseIfMaintenanceMode)
 
@@ -28,7 +28,7 @@ func TestMaintenance(t *testing.T) {
 		if err := mc.SetMessage([]byte("Service Unavailable")); err != nil {
 			t.Error(err.Error())
 		}
-		defer mc.DeleteAll()
+		defer mc.Disable()
 
 		res, err := client.Get(ts.URL)
 		if err != nil {
@@ -55,11 +55,11 @@ func TestMaintenance(t *testing.T) {
 func TestAllowByIPFeature(t *testing.T) {
 	m := NewMaintenance(os.Getenv("MEMCACHED_SERVER"))
 
-	mc := NewClient(os.Getenv("MEMCACHED_SERVER"))
+	mc := NewMemcachedClient(os.Getenv("MEMCACHED_SERVER"))
 	if err := mc.SetMessage([]byte("Service Unavailable")); err != nil {
 		t.Error(err.Error())
 	}
-	defer mc.DeleteAll()
+	defer mc.Disable()
 
 	middlewares := chi.Chain(m.SetMaintenance, m.AllowByIP, m.ResponseIfMaintenanceMode)
 
@@ -88,7 +88,7 @@ func TestAllowByIPFeature(t *testing.T) {
 		if err := mc.SetAllowedIPs(allowedIPs); err != nil {
 			t.Error(err.Error())
 		}
-		defer mc.Delete(AllowedIPsKey)
+		defer mc.DisableAllowedIPs()
 
 		res, err := client.Get(ts.URL)
 		if err != nil {
@@ -107,7 +107,7 @@ func TestAllowByIPFeature(t *testing.T) {
 		if err := mc.SetAllowedIPs(allowedIPs); err != nil {
 			t.Error(err.Error())
 		}
-		defer mc.Delete(AllowedIPsKey)
+		defer mc.DisableAllowedIPs()
 
 		res, err := client.Get(ts.URL)
 		if err != nil {

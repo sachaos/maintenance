@@ -13,11 +13,11 @@ type Maintenance interface {
 }
 
 type maintenance struct {
-	client *Client
+	client Client
 }
 
 func NewMaintenance(url string) Maintenance {
-	client := NewClient(url)
+	client := NewMemcachedClient(url)
 	return &maintenance{
 		client: client,
 	}
@@ -25,7 +25,7 @@ func NewMaintenance(url string) Maintenance {
 
 func (ms *maintenance) SetMaintenance(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := context.WithValue(r.Context(), MaintenanceKey, ms.client.getMaintenance())
+		ctx := context.WithValue(r.Context(), MaintenanceKey, ms.client.GetMaintenance())
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -38,7 +38,7 @@ func (ms *maintenance) AllowByIP(next http.Handler) http.Handler {
 			return
 		}
 
-		ips, err := ms.client.getAllowedIPs()
+		ips, err := ms.client.GetAllowedIPs()
 		if err != nil {
 			mode.Disable()
 			next.ServeHTTP(w, r)
