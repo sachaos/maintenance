@@ -6,9 +6,6 @@ import (
 	"github.com/bradfitz/gomemcache/memcache"
 )
 
-const MaintenanceKey = "maintenance"
-const AllowedIPsKey = "maintenance_allowed_ips"
-
 type MemcachedClient struct {
 	URL string
 	mc  *memcache.Client
